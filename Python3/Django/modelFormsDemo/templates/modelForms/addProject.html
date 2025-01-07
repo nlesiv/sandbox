@@ -1,0 +1,15 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Add Project</title>
+</head>
+<body>
+    <h2>Add Project</h2>
+    <form method='post'>
+        {{form.as_p}}
+        {% csrf_token %}
+        <input type="submit" value="Add Project"/>
+    </form>
+
+</body>
+</html>

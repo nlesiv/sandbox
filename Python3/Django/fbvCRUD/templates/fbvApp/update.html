@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <meta charset="uft-8">
+        <title>Update Student Information</title>
+    </head>
+    <body>
+        <h2>Update Student</h2>
+        <form method='post'>
+            <table>
+            {{form.as_table}}
+            {% csrf_token %}
+            </table>
+            <br />
+            <input type='submit' value="UPdate"/>
+        </form>
+    </body>
+</html>

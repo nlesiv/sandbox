@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <meta charset="uft-8">
+        <title>Student Information</title>
+    </head>
+    <body>
+        <h1>Student:</h1>
+        <ol>
+            <h3>
+                <li>First Name: {{student.firstName}}</li>
+            </h3>
+            <h3>
+                <li>Last Name: {{student.lastName}}</li>
+            </h3>
+            <h3>
+                <li>Test Score: {{student.testScore}}</li>
+            </h3>
+            <h3><a href="/delete/{{student.id}}">Delete</a></h3>
+            <h3><a href="/update/{{student.id}}">update</a></h3>
+        </ol>
+        <br />
+        <a href="/create">Add Student</a>
+    </body>
+</html>
