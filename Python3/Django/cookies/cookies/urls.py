@@ -1,5 +1,5 @@
 """
-URL configuration for fbvCRUD project.
+URL configuration for cookies project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -15,15 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from fbvApp import views
-
+from django.urls import path
+from cookiesApp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.getStudents),
-    path("create/", views.createStudent),
-    path('delete/<int:id>', views.deleteStudent),
-    path('update/<int:id>', views.updateStudent),
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('logout/', views.logout)
+    path('home/', views.home),
+    path('page2/', views.page2),
+    path('count/', views.countView)
 ]
