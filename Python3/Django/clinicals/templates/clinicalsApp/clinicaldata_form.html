@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <meta charset="uft-8">
+        <title>Clinical Data Creation</title>
+    </head>
+    <body>
+       <h2>Patient Details</h2>
+        First Name: {{patient.firstName}}
+        Last Name: {{patient.lastName}}
+        First Name: {{patient.age}}
+
+        <h2>Patient Clinical Data</h2>
+        <form method='post'>
+            <table>
+                {{form.as_table}}
+                {% csrf_token %}
+                <input type='submit' value='save'/>
+            </table>
+        </form>
+      
+    </body>
+</html>

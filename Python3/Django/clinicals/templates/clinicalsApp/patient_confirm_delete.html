@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <meta charset="uft-8">
+        <title>Patient List</title>
+    </head>
+    <body>
+        <h1>Delete Patient: {{patient.firstName}}</h1>
+        <form method="post">
+            <input type='submit' value='confirm'/>
+            <a href=''>Cancel</a>
+            {% csrf_token %}
+        </form>
+      
+    </body>
+</html>
