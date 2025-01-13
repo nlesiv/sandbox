@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <meta charset="uft-8">
+        <title>Clinical Data Report</title>
+    </head>
+    <body>
+        <h2>Patient Clinical Data Report</h2>
+       <table>
+        <thead>
+            <th>Component Name</th>
+            <th>Component Value</th>
+            <th>Measure Data time</th>
+        </thead>
+        <tbody>
+            {% for eachEntry in data %}
+            <tr>
+                <td>{{eachEntry.componentName}}</td>
+                <td>{{eachEntry.componentValue}}</td>
+                <td>{{eachEntry.measuredDateTime}}</td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+       </table>
+       <a href='/'>Home</a>
+    </body>
+</html>
