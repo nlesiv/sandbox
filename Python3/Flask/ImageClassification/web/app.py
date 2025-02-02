@@ -4,6 +4,9 @@ from pymongo import MongoClient
 import bcrypt
 import numpy as np
 import requests
+from tensorflow.keras.applications import InceptionV3
+import tensorflow as tf
+# from tf.keras.applications import InceptionV3
 
 app = Flask(__name__)
 
