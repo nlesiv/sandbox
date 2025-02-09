@@ -3,7 +3,8 @@ services:
   web:
     build: ./web
     ports:
-      - 5000:5000
+      - 5001:5000
+      - 8081:8081
     depends_on:
       - db
   db:

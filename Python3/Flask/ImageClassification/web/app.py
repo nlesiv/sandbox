@@ -9,7 +9,7 @@ from tensorflow.keras.applications.inception_v3 import preprocess_input
 from tensorflow.keras.applications import imagenet_utils
 from tensorflow.keras.preprocessing.image import img_to_array
 from PIL import Image
-from io import BytesIo;
+from io import BytesIO;
 app = Flask(__name__)
 
 api = Api(app)
@@ -69,12 +69,10 @@ def generate_return_dictionary(status, msg):
 class Classify(Resource):
     def post(self):
         # get posted data
-        posted_data = request.get_json()
+        data = request.get_json()
 
         #get credentials and url
-        username = data['username']
-        password = data['password']
-        url = posted_data['url']
+        url = data['url']
 
 
         #verify credentials
@@ -87,7 +85,7 @@ class Classify(Resource):
         
         # load image from URL
         response = requests.get(url)
-        img = Image.open(BytesIo(response.content))
+        img = Image.open(BytesIO(response.content))
 
         # preprocess image
         img = img.resize((299, 299))
@@ -101,9 +99,11 @@ class Classify(Resource):
 
         ret_json = {}
         for pred in actual_prediction[0]:
-            ret_json[pred[1]] = float([pred[2]*100])
+            print(pred)
+            ret_json[pred[1]] = float(pred[2]*100)
 
         # users.update_one
+        return ret_json
 
 
 
@@ -111,7 +111,7 @@ api.add_resource(Resource, '/register')
 api.add_resource(Classify, '/classify')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port="8081")
 
 
 
