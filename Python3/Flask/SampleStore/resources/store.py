@@ -4,10 +4,14 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from db import stores, items
 
+from schemas import ItemSchema, ItemUpdateSchema, StoreSchema
+
 blp = Blueprint("stores", __name__, description="OPeration on Stores")
 
 @blp.route("/store/<string:store_id>")
 class Store(MethodView):
+
+    @blp.response(200, StoreSchema)
     def get(self, store_id):
         return ({"stores": list(stores.values())}, 200)
 
@@ -20,17 +24,21 @@ class Store(MethodView):
 
 @blp.route("/store")
 class StoreList(MethodView):
+
+    @blp.response(200, StoreSchema(many=True))
     def get(self):
-        return {"stores": list(stores.values())}
+        return list(stores.values())
 
-    def post(self):
-        request_data = request.get_json()
+    @blp.arguments(StoreSchema)
+    @blp.response(200, StoreSchema)
+    def post(self, request_data):
+        # request_data = request.get_json()
 
-        if "name" not in request_data:
-            abort(
-                400,
-                message="Bad Request, Ensure 'name' is included"
-            )
+        # if "name" not in request_data:
+        #     abort(
+        #         400,
+        #         message="Bad Request, Ensure 'name' is included"
+        #     )
 
         for store in stores.values():
             if request_data["name"] == store["name"]:
@@ -44,6 +52,8 @@ class StoreList(MethodView):
 
 @blp.route("/item/<string:item_id>")
 class Item(MethodView):
+
+    @blp.response(200, ItemSchema)
     def get(self, item_id):
         try:
             return items[item_id]
@@ -57,11 +67,13 @@ class Item(MethodView):
         except KeyError:
             abort(404, message="item not found")
 
-    def put(self, item_id):
-        item_data = request.get_json()
+    @blp.arguments(ItemUpdateSchema)
+    @blp.response(200, ItemSchema)
+    def put(self, item_data, item_id):
+        # item_data = request.get_json()
 
-        if "price" not in item_data or "name" not in item_data:
-            abort(400, message="Bad Request, Price and Name required")
+        # if "price" not in item_data or "name" not in item_data:
+        #     abort(400, message="Bad Request, Price and Name required")
 
         try:
             item = items[item_id]
@@ -73,19 +85,23 @@ class Item(MethodView):
 
 @blp.route("/item")
 class ItemList(MethodView):
+
+    @blp.response(200, ItemSchema(many=True))
     def get(self):
-        return {"items": list(items.values())}
+        return list(items.values())
 
-    def post(self):
-        request_data = request.get_json()
+    @blp.arguments(ItemSchema)
+    @blp.response(201, ItemSchema)
+    def post(self, request_data):
+        # request_data = request.get_json()
 
-        if (
-                "price" not in request_data
-                or "store_id" not in request_data
-                or "name" not in request_data
-        ):
-            abort(400,
-                  message="Bad request, ensure all fields are included")
+        # if (
+        #         "price" not in request_data
+        #         or "store_id" not in request_data
+        #         or "name" not in request_data
+        # ):
+        #     abort(400,
+        #           message="Bad request, ensure all fields are included")
 
         for item in items.values():
             if (
