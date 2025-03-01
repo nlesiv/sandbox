@@ -1,0 +1,7 @@
+#Install requirements
+pip install -r requirements.txt
+
+
+# this command will use the main compose file and then override any commands from the first file
+# with the commands from the second one
+docker compose -f docker-compose.yml -f docker-compose.debug.yml up
