@@ -1,7 +1,13 @@
 #Install requirements
 pip install -r requirements.txt
 
+# Run docker image with a bound volume to the current workspace
+docker run -dp 5005:5000 -w /app -v "$(pwd):/app" flask-smorest-api
+
 
 # this command will use the main compose file and then override any commands from the first file
 # with the commands from the second one
 docker compose -f docker-compose.yml -f docker-compose.debug.yml up
+
+# Swagger API
+http://localhost:5005/swagger-ui
