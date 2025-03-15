@@ -4,7 +4,9 @@ import Card from './components/Card';
 import GlobalStyles from './global-styles';
 import styled, {ThemeProvider} from 'styled-components'
 import {useState} from 'react';
-
+import Spinner from './components/Spinner'; 
+import Form from "./components/Form"
+import List from "./components/List"
 const BaseTheme = {
   color: '#222',
   background: '#fff',
@@ -55,6 +57,13 @@ function App() {
         <Card></Card>
         <button className='btn' onClick={toggleTheme}>Toggle me</button>
       </Container>
+
+      {/* <Spinner></Spinner> */}
+
+    <Form></Form>
+
+    <List></List>
+
       
     </ThemeProvider>
   );

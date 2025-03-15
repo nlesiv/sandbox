@@ -4,10 +4,10 @@ import styled from 'styled-components'
 const Card = () => {
     return (
         <StyledCard>
-            <img
+            {/* <img
             src=''
             alt='product'
-            />
+            /> */}
 
             <footer>
                 <h4>product name</h4>
