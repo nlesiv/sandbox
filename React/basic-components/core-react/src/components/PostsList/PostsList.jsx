@@ -1,4 +1,4 @@
-import { useState} from 'react'
+import { useState, useEffect, use} from 'react'
 import styles from './PostsList.module.css'
 import Post from '../Post/Post';
 import NewPost from "../NewPost/NewPost";
@@ -6,34 +6,49 @@ import Modal from '../Modal/Modal';
 
 function PostsList(props) {
     // const chosenName = Math.random() > .5 ? "Superman" : "Batman"
-    const [body, setBody] = useState("")
-    const [author, setAuthor] = useState("")
-    const [modalOpen, setModalState] = useState(true)
 
-    function changeBodyHandler(event) {
-        console.log('PostsList.changeBodyHandler(event.target.value;)', event.target.value)
-        setBody(event.target.value)
+    const [posts, setPosts] = useState([])
+
+    function addPost(data) {
+        console.log("PostsList.addPost", data)
+
+        // fetch("", {
+        //     method: "POST",
+        //     body: 
+        //         JSON.stringify(data),
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     }
+        // })
+        // setPosts([data, ...posts])
+        setPosts((existingData) => {
+            return [data, ...posts]
+        })
+        props.onDialogClose()
     }
 
-    function changeAuthorHandler(event) {
-        console.log('PostsList.changeAuthorHandler(event.target.value;)', event.target.value)
-        setAuthor(event.target.value)
-    }
+    useEffect(() => {
+        // async function fetchPosts() {
+        //     const response = await fetch("");
+        //     const data = await response.json()
+        //     setPosts(data.posts)
+        // }
 
-    function toggleModal(event) {
-        setModalState(false)
-    }
-
+        // fetchPosts();
+    }, [])
     return (
         <>
-        {modalOpen &&
-        ( <Modal onClose={toggleModal}>
-            <NewPost onBodyChange={changeBodyHandler} onAuthorChange={changeAuthorHandler} />
+        {props.dialog &&
+        ( <Modal onClose={props.onDialogClose}>
+            <NewPost onCancel={props.onDialogClose} onSubmit={addPost} />
         </Modal> )}
-        <ul className={styles.posts}>
-             <Post author={author} body={body}></Post>
-             <Post author="Batman" body="React is awesomer"></Post>
-        </ul>
+        {posts.length > 0 &&  <ul className={styles.posts}>
+             {/* <Post author={author} body={body}></Post> */}
+             {posts.map((item, indx) => {
+                return <Post key={indx} author={item.author} body={item.body}></Post>
+             })}
+        </ul> || <div>No Posts to view</div> }
+       
         </>
     );
 }
