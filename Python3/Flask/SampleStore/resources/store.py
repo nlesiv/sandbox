@@ -4,6 +4,11 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from db import stores, items
 
+from flask_jwt_extended import (
+
+    jwt_required,
+)
+
 from schemas import ItemSchema, ItemUpdateSchema, StoreSchema
 
 blp = Blueprint("stores", __name__, description="OPeration on Stores")
@@ -25,6 +30,7 @@ class Store(MethodView):
 @blp.route("/store")
 class StoreList(MethodView):
 
+    @jwt_required()
     @blp.response(200, StoreSchema(many=True))
     def get(self):
         return list(stores.values())
@@ -52,6 +58,7 @@ class StoreList(MethodView):
 
 @blp.route("/item/<string:item_id>")
 class Item(MethodView):
+
 
     @blp.response(200, ItemSchema)
     def get(self, item_id):
