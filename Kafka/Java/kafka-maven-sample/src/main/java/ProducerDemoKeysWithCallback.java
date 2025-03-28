@@ -31,13 +31,20 @@ public class ProducerDemoKeysWithCallback {
         // Create the producer
         KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
 
-        // Create a producer record
-        for (int i = 0; i < 30; ++i) {
-            ProducerRecord<String, String> producerRecord = new ProducerRecord<>(
-                    "demo_java", "Message with Key #" + i
-            );
+        for (int j = 0; j < 2; ++j) {
 
-            send(producer, producerRecord);
+
+            // Create a producer record
+            for (int i = 0; i < 10; ++i) {
+                String topic = "demo_java";
+                String key = "id_" + i;
+                String value = "hello world " + i;
+                ProducerRecord<String, String> producerRecord = new ProducerRecord<>(
+                        topic, key, value
+                );
+                send(producer, producerRecord);
+            }
+
         }
 
         // send data
@@ -57,6 +64,7 @@ public class ProducerDemoKeysWithCallback {
                 if (e == null) {
                     // the record was succesfully sent.
                     log.info("Received new metadata \n" +
+                            "key: " + record.key() + "\n" +
                             "Topic: " + recordMetadata.topic() + "\n" +
                             "Partition: " + recordMetadata.partition() + "\n" +
                             "Offset: " + recordMetadata.offset() + "\n" +
