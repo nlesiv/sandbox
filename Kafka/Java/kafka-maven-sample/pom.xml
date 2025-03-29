@@ -4,10 +4,14 @@
   <groupId>org.example</groupId>
   <artifactId>kafka-maven-sample</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>Archetype - kafka-maven-sample</name>
+    <packaging>pom</packaging>
+    <name>Archetype - kafka-maven-sample</name>
   <url>http://maven.apache.org</url>
+    <modules>
+        <module>kafka-producer-wikimedia</module>
+    </modules>
 
-  <dependencies>
+    <dependencies>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
