@@ -1,3 +1,4 @@
+import com.google.gson.JsonParser;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -62,6 +63,7 @@ public class OpenSearchConsumer {
 
         return restHighLevelClient;
     }
+
     public static void main(String[] args) throws IOException {
         Logger logger = LoggerFactory.getLogger(OpenSearchConsumer.class.getSimpleName());
 
@@ -71,13 +73,13 @@ public class OpenSearchConsumer {
 
         RestHighLevelClient openSearchClient = createOpenSearchClient();
         // Create a Kafka client.
-        KafkaConsumer<String,String> kafkaConsumer = createKafkaConsumer();
+        KafkaConsumer<String, String> kafkaConsumer = createKafkaConsumer();
 
-        try(openSearchClient; kafkaConsumer) {
+        try (openSearchClient; kafkaConsumer) {
 
             boolean indexExists = openSearchClient.indices().exists(new GetIndexRequest(index), RequestOptions.DEFAULT);
 
-            if(!indexExists) {
+            if (!indexExists) {
                 // we need to create an index on the open search if it doestn exist
                 CreateIndexRequest createIndexRequest = new CreateIndexRequest(index);
                 openSearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
@@ -89,16 +91,21 @@ public class OpenSearchConsumer {
             // subscribe to consumer.
             kafkaConsumer.subscribe(Collections.singleton(topic));
 
-            while(true) {
+            while (true) {
                 ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(3000));
                 int count = records.count();
 
                 logger.info("Received " + count + " records(s)");
-                for (ConsumerRecord<String, String> record: records) {
-
+                for (ConsumerRecord<String, String> record : records) {
+                    // Unique ID configuration
+                    // Strategy 1 - Defined an ID using Kafka record coordinates
+//                    String id = record.topic() + "_" + record.partition() + "_" + record.offset();
+                    // Strategy 2 - Use exiting ID from the data you are consuming
                     try {
+                        String id = extractId(record);
                         // send the record into openSearch
-                        IndexRequest indexRequest = new IndexRequest(index).source(record.value(), XContentType.JSON);
+                        IndexRequest indexRequest = new IndexRequest(index).source(record.value(), XContentType.JSON)
+                                .id(id);
 
                         IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
                         logger.info("Inserted data into OpenSearch, ID: " + response.getId());
@@ -107,12 +114,22 @@ public class OpenSearchConsumer {
                     }
 
                 }
+
+                //commit offsets after the batch is consumed
+                kafkaConsumer.commitSync();
+                logger.info("Offsets have been committed!");
             }
 
         }
     }
 
-    public static KafkaConsumer<String,String> createKafkaConsumer() {
+    public static String extractId(ConsumerRecord<String, String> record) {
+        String json = record.value();
+
+        return JsonParser.parseString(json).getAsJsonObject().get("meta").getAsJsonObject().get("id").getAsString();
+    }
+
+    public static KafkaConsumer<String, String> createKafkaConsumer() {
         String bootstrapServers = "127.0.0.1:19092";
         String groupId = "consumer-opensearch-demo";
         // Create producer properties.
@@ -122,6 +139,7 @@ public class OpenSearchConsumer {
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        properties.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
         return new KafkaConsumer<String, String>(properties);
     }
