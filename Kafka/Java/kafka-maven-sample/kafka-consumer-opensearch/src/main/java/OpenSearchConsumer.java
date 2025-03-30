@@ -10,8 +10,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.action.index.IndexResponse;
 import org.opensearch.client.RequestOptions;
@@ -75,6 +78,24 @@ public class OpenSearchConsumer {
         // Create a Kafka client.
         KafkaConsumer<String, String> kafkaConsumer = createKafkaConsumer();
 
+        // get a reference to the main thread
+        final Thread mainThread = Thread.currentThread();
+        // add the shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                logger.info("Detected a shutdown, let's exit by calling consumer.wakeup()...");
+                kafkaConsumer.wakeup();
+
+                // join the main thread to allow th eexecution of the code in the main thread
+                try {
+                    mainThread.join();
+                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                }
+            }
+        });
+
         try (openSearchClient; kafkaConsumer) {
 
             boolean indexExists = openSearchClient.indices().exists(new GetIndexRequest(index), RequestOptions.DEFAULT);
@@ -96,6 +117,8 @@ public class OpenSearchConsumer {
                 int count = records.count();
 
                 logger.info("Received " + count + " records(s)");
+
+                BulkRequest bulkRequest = new BulkRequest();
                 for (ConsumerRecord<String, String> record : records) {
                     // Unique ID configuration
                     // Strategy 1 - Defined an ID using Kafka record coordinates
@@ -107,19 +130,38 @@ public class OpenSearchConsumer {
                         IndexRequest indexRequest = new IndexRequest(index).source(record.value(), XContentType.JSON)
                                 .id(id);
 
-                        IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
-                        logger.info("Inserted data into OpenSearch, ID: " + response.getId());
+//                        IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
+                        bulkRequest.add(indexRequest);
+//                        logger.info("Inserted data into OpenSearch, ID: " + response.getId());
                     } catch (Exception e) {
 
                     }
 
                 }
 
-                //commit offsets after the batch is consumed
-                kafkaConsumer.commitSync();
-                logger.info("Offsets have been committed!");
+                if (bulkRequest.numberOfActions() > 0) {
+                    BulkResponse bulkResponse = openSearchClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+                    logger.info("Inserted " + bulkResponse.getItems().length + " record(s).");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+
+                    }
+                    //commit offsets after the batch is consumed
+                    kafkaConsumer.commitSync();
+                    logger.info("Offsets have been committed!");
+                }
+
+
             }
 
+        } catch (WakeupException e) {
+            logger.info("Consumer is starting to shut down");
+        } catch (Exception e) {
+            logger.error("Unexpected exception in the consumer", e);
+        } finally {
+            kafkaConsumer.close(); // close the consumer, this will also commit offset.
+            logger.info("The Consumer will gracefully shut down");
         }
     }
 
