@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException, Path, status, APIRouter
 from models import Todos
 from database import SessionLocal, engine
+from .auth import get_current_user
 
 router = APIRouter()
 def get_db():
@@ -14,6 +15,8 @@ def get_db():
         db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
+user_dependency = Annotated[Session, Depends(get_current_user)]
+
 
 class TodoRequest(BaseModel):
     title: str = Field(..., min_length=3)
@@ -22,29 +25,41 @@ class TodoRequest(BaseModel):
     completed: bool = False
 
 @router.get("/", status_code=status.HTTP_200_OK)
-def read_all(db: db_dependency):
-    todos = db.query(Todos).all()
+def read_all(user: user_dependency, db: db_dependency):
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    todos = db.query(Todos).filter(Todos.owner_id == user.get('id')).all()
     return todos
 
 @router.get("/todo/{todo_id}", status_code=status.HTTP_200_OK)
-def read_todo(db: db_dependency, todo_id: int = Path(gt=0) ):
-    todo = db.query(Todos).filter(Todos.id == todo_id).first()
+def read_todo(user: user_dependency, db: db_dependency, todo_id: int = Path(gt=0) ):
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    todo = db.query(Todos).filter(Todos.id == todo_id).filter(Todos.owner_id == user.get("id")).first()
     if todo:
         return todo
     else:
         raise HTTPException(status_code=404, detail="Todo not found")
     
 @router.post("/todo", status_code=status.HTTP_201_CREATED)
-def create_todo(db: db_dependency, todo: TodoRequest):
-    todo_model = Todos(**todo.model_dump())
+def create_todo(user: user_dependency, db: db_dependency, todo: TodoRequest):
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    todo_model = Todos(**todo.model_dump(), owner_id=user.get('id'))
     db.add(todo_model)
     db.commit()
     db.refresh(todo_model)
     return todo_model
 
 @router.put("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
-def update_todo(db: db_dependency, todo: TodoRequest, todo_id: int = Path(gt=0), ):
-    todo_model = db.query(Todos).filter(Todos.id == todo_id).first()
+def update_todo(user: user_dependency, db: db_dependency, todo: TodoRequest, todo_id: int = Path(gt=0), ):
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    todo_model = db.query(Todos).filter(Todos.id == todo_id).filter(Todos.owner_id == user.get("id")).first()
     if todo_model:
         for key, value in todo.model_dump().items():
             setattr(todo_model, key, value)
