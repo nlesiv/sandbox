@@ -13,9 +13,9 @@ password = urllib.parse.quote_plus(os.getenv("DB_PASSWORD"))
 host = os.getenv("DB_HOST")
 port = os.getenv("DB_PORT")
 database = os.getenv("DB_NAME")
-SQLALCHEMY_DATABASE_URL = f"postgresql://{username}:{password}@{host}:{port}/{database}"
+# SQLALCHEMY_DATABASE_URL = f"postgresql://{username}:{password}@{host}:{port}/{database}"
 
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./todoapp.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./todoapp.db"
 # SQLALCHEMY_DATABASE_URL = "mysql+pymysql://user:password@mysqlserver/db"
 
 engine = create_engine(

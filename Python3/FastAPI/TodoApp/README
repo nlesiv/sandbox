@@ -1,2 +1,7 @@
 ## Start Servier
 uvicorn main:app --reload
+
+
+## Alembic 
+# Initialize the alembic configuration
+alembic init alembic
