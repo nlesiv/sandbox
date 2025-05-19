@@ -2,8 +2,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from fastapi import Depends, FastAPI, APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
-from database import SessionLocal
-from models import Users
+from ..database import SessionLocal
+from ..models import Users
 from sqlalchemy.orm import Session
 
 from passlib.context import CryptContext
@@ -15,8 +15,8 @@ SECRET_KEY = "27a65b5ea6db622fe6b6644a2362989a1454253bd4379312a611868a0b50c098"
 ALGORITHM = "HS256"
 
 router = APIRouter(
-    prefix="/api/v1/auth",
-    tags=["auth"],
+   
+   
 )
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

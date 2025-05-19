@@ -1,7 +1,11 @@
 ## Start Servier
 uvicorn main:app --reload
+uvicorn TodoApp.main:app --reload
 
 
 ## Alembic 
 # Initialize the alembic configuration
 alembic init alembic
+
+## Testing
+pytest --disable-warnings
