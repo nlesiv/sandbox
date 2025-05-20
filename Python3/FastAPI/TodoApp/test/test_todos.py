@@ -10,7 +10,7 @@ app.dependency_overrides[get_db] = override_get_db
 app.dependency_overrides[get_current_user] = override_get_current_user
 
 def test_read_all_authenticated(beforeEach):
-    response = client.get("/")
+    response = client.get("/api/todos")
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
         {
@@ -24,7 +24,7 @@ def test_read_all_authenticated(beforeEach):
     ]
 
 def test_read_one_authenticated(beforeEach):
-    response = client.get("/todo/1")
+    response = client.get("/api/todos/1")
     assert response.status_code == status.HTTP_200_OK
     assert response.json() =={
         "title": "Test Todo",
@@ -36,13 +36,13 @@ def test_read_one_authenticated(beforeEach):
     }
 
 def test_read_one_authenticated_not_found():
-    response = client.get("/todo/999")
+    response = client.get("/api/todos/999")
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Todo not found"}  
 
 def test_create_todo(beforeEach):
     response = client.post(
-        "/todo",
+        "/api/todos",
         json={
             "title": "New Todo",
             "description": "New Description",
@@ -62,7 +62,7 @@ def test_create_todo(beforeEach):
 
 def test_update_todo(beforeEach):
     response = client.put(
-        "/todo/1",
+        "/api/todos/1",
         json={
             "title": "Updated Todo",
             "description": "Updated Description",
@@ -71,7 +71,7 @@ def test_update_todo(beforeEach):
         },
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
-    updated_todo = client.get("/todo/1")
+    updated_todo = client.get("/api/todos/1")
     assert updated_todo.json() == {
         "title": "Updated Todo",
         "description": "Updated Description",

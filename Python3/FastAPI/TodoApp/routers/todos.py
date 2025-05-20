@@ -6,7 +6,10 @@ from ..models import Todos
 from ..database import SessionLocal, engine
 from .auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/api/todos",
+    tags=["todos"]
+)
 def get_db():
     db = SessionLocal()
     try:
@@ -32,7 +35,7 @@ def read_all(user: user_dependency, db: db_dependency):
     todos = db.query(Todos).filter(Todos.owner_id == user.get('id')).all()
     return todos
 
-@router.get("/todo/{todo_id}", status_code=status.HTTP_200_OK)
+@router.get("/{todo_id}", status_code=status.HTTP_200_OK)
 def read_todo(user: user_dependency, db: db_dependency, todo_id: int = Path(gt=0) ):
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -43,7 +46,7 @@ def read_todo(user: user_dependency, db: db_dependency, todo_id: int = Path(gt=0
     else:
         raise HTTPException(status_code=404, detail="Todo not found")
     
-@router.post("/todo", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_todo(user: user_dependency, db: db_dependency, todo: TodoRequest):
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -54,7 +57,7 @@ def create_todo(user: user_dependency, db: db_dependency, todo: TodoRequest):
     db.refresh(todo_model)
     return todo_model
 
-@router.put("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 def update_todo(user: user_dependency, db: db_dependency, todo: TodoRequest, todo_id: int = Path(gt=0), ):
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -70,7 +73,7 @@ def update_todo(user: user_dependency, db: db_dependency, todo: TodoRequest, tod
     else:
         raise HTTPException(status_code=404, detail="Todo not found")
     
-@router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_todo(db: db_dependency, todo_id: int = Path(gt=0)):
     todo_model = db.query(Todos).filter(Todos.id == todo_id).first()
     if todo_model:
