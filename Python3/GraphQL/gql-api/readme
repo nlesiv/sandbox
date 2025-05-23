@@ -1,0 +1,3 @@
+### Startup Commands
+
+uvicorn main:app --reload
