@@ -1,0 +1,9 @@
+spacy
+numpy
+keras
+matplotlib
+pandas
+nltk
+scikit-learn
+jupyter
+PyPDF2
