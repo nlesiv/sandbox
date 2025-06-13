@@ -1,0 +1,5 @@
+### START THE NOTEBOOK ENV
+jupyter notebook
+
+### Convert From Notebook to py file
+You can even convert the notebooks to .py files by using nbconvert or just by clicking Save As -> .py file.
