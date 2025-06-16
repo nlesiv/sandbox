@@ -1,3 +1,4 @@
+import 'package:basics/gradient_container.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -19,31 +20,9 @@ class MyApp extends StatelessWidget {
     // In this course, you will, of course, not just use them a lot but
     // also learn about many other widgets!
     return MaterialApp(
-      title: 'Flutter First App',
+      title: 'Flutter - The Complete Guide Course',
       theme: ThemeData(useMaterial3: true),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Welcome to Flutter')),
-        body: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              Text(
-                'Flutter - The Complete Guide',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Learn Flutter step-by-step, from the ground up.',
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
+      home: GradientContainer(),
     );
   }
 }
