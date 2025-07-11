@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer;
 from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import NMF
 import random
 import numpy as np
 
@@ -17,31 +19,31 @@ npr = pd.read_csv('../TextFiles/npr.csv')
 # print(npr.head())
 
 
+tfidf = TfidfVectorizer(max_df=0.95, min_df=2, stop_words='english')
 
-cv = CountVectorizer(max_df=0.9, min_df=2, stop_words='english')
+# cv = CountVectorizer(max_df=0.9, min_df=2, stop_words='english')
 # dtm = cv.fit_transform(npr['Article'].head())
-dtm = cv.fit_transform(npr['Article'])
+dtm = tfidf.fit_transform(npr['Article'])
 # print(dtm)
-
-LDA = LatentDirichletAllocation(n_components=7, random_state=42)
-result = LDA.fit(dtm)
+nmf_model = NMF(n_components=7, random_state=42)
+result = nmf_model.fit(dtm)
 
 print(result)
 
 # Grab the vocbulary of words
-features = cv.get_feature_names_out()
+features = tfidf.get_feature_names_out()
 print(features)
 
 random_word_int = random.randint(0, len(features) -1)
-random_feature_names = cv.get_feature_names_out()[random_word_int]
+random_feature_names = tfidf.get_feature_names_out()[random_word_int]
 
 print("Random word:", random_feature_names)
 
 
 # Grab the topics
-print(LDA.components_)
+print(nmf_model.components_)
 
-single_topic = LDA.components_[0]
+single_topic = nmf_model.components_[0]
 print("Single topic:", single_topic)
 # argsort will sort the values and return the list of indices that would sort the array
 #get the LAST 10 values in the sorted array
@@ -58,9 +60,9 @@ print("top_ten_words:", top_ten_words)
 # arr = np.array([10,200,1]).argsort()
 
 # Grab the highest probability words per topic
-for index, topic in enumerate(LDA.components_):
+for index, topic in enumerate(nmf_model.components_):
     print(f"TOpic {index}:")
-    print([cv.get_feature_names_out()[i] for i in topic.argsort()[-15:]])
+    print([tfidf.get_feature_names_out()[i] for i in topic.argsort()[-15:]])
     print('\n')
 
 
@@ -69,7 +71,7 @@ for index, topic in enumerate(LDA.components_):
 # Each row corresponds to a document, and each column corresponds to a topic
 # The values are the probabilities of each topic for that document
 # This is the output of the LDA model
-topic_results = LDA.transform(dtm)
+topic_results = nmf_model.transform(dtm)
 
 print(topic_results)
 
